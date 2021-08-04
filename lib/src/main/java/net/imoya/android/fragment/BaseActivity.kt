@@ -8,24 +8,17 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import net.imoya.android.fragment.BaseFragment.Companion.setContainerViewId
-import net.imoya.android.util.Log.d
+import net.imoya.android.util.Log
 
 /**
- * [Fragment] のナビゲーションの共通処理をある程度実装した状態の [Activity] です。
+ * [Fragment] のナビゲーション処理をある程度実装した状態の [AppCompatActivity] です。
  *
- *
- *
- *  * [Activity] の画面全体に、1個の [Fragment] が表示される画面を前提とします。
- *  * デフォルトの実装では、BackStack へ [Fragment]
- * が追加された場合に、アクションバーへ戻るボタンを表示します。
- *  * 表示中の [Fragment] が [OnNavigationUpListener]
- * を実装している場合、アクションバーの戻るボタン押下時に
+ *  * [AppCompatActivity] の画面全体に、1個の [Fragment] が表示される画面を前提とします。
+ *  * デフォルトの実装では、BackStack へ [Fragment] が追加された場合に、アクションバーへ戻るボタンを表示します。
+ *  * 表示中の [Fragment] が [OnNavigationUpListener] を実装している場合、アクションバーの戻るボタン押下時に
  * [OnNavigationUpListener.onFragmentNavigationUp] の既定の処理を実行します。
- *  * 表示中の [Fragment] が [OnBackKeyListener]
- * を実装している場合、アクションバーの戻るボタン押下時に
+ *  * 表示中の [Fragment] が [OnBackKeyListener] を実装している場合、アクションバーの戻るボタン押下時に
  * [OnBackKeyListener.onBackKeyPressed] の既定の処理を実行します。
- *
  */
 @Suppress("unused")
 abstract class BaseActivity : AppCompatActivity() {
@@ -33,7 +26,6 @@ abstract class BaseActivity : AppCompatActivity() {
 
     /**
      * この [Fragment] が配置されている場所へ、別の [Fragment] を配置します。
-     *
      *
      * 画面の切り替え時、次のアニメーションを使用します。
      * アニメーションの内容をカスタマイズする場合はアプリケーション側のリソースで、下記のリソースを再定義してください:
@@ -43,21 +35,20 @@ abstract class BaseActivity : AppCompatActivity() {
      *  * [R.anim.fragment_pop_enter]
      *  * [R.anim.fragment_pop_exit]
      *
-     *
      * @param containerViewId [Fragment] を配置する [View]
      * @param fragmentAfter   置き換え後の [Fragment]
      * @param tag             [Fragment] に設定するタグ
      */
-    protected fun replaceTo(containerViewId: Int, fragmentAfter: Fragment?, tag: String?) {
+    protected fun replaceTo(containerViewId: Int, fragmentAfter: Fragment, tag: String?) {
         if (fragmentAfter is BaseFragment) {
-            setContainerViewId((fragmentAfter as BaseFragment?)!!, containerViewId)
+            fragmentAfter.containerViewId = containerViewId
         }
-        this.supportFragmentManager.beginTransaction()
+        supportFragmentManager.beginTransaction()
             .setCustomAnimations(
                 R.anim.fragment_enter, R.anim.fragment_exit,
                 R.anim.fragment_pop_enter, R.anim.fragment_pop_exit
             )
-            .replace(containerViewId, fragmentAfter!!, tag)
+            .replace(containerViewId, fragmentAfter, tag)
             .addToBackStack(tag)
             .commit()
     }
@@ -86,10 +77,10 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        this.setContentView(contentViewResourceId)
+        setContentView(contentViewResourceId)
         updateActionBar(true)
         isFirstResume = true
-        this.supportFragmentManager.addOnBackStackChangedListener(
+        supportFragmentManager.addOnBackStackChangedListener(
             backStackChangedListener
         )
 
@@ -98,9 +89,9 @@ abstract class BaseActivity : AppCompatActivity() {
             val containerId = fragmentContainerId
             val firstFragment = firstFragment
             if (firstFragment is BaseFragment) {
-                setContainerViewId(firstFragment, containerId)
+                firstFragment.containerViewId = containerId
             }
-            this.supportFragmentManager.beginTransaction()
+            supportFragmentManager.beginTransaction()
                 .add(containerId, firstFragment, "Fragment")
                 .commit()
         }
@@ -114,21 +105,38 @@ abstract class BaseActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * [AppCompatActivity] に初期表示する [Fragment] を表示開始時にコールされ、
+     * [ActionBar] の設定を行うメソッド
+     *
+     * @param actionBar [ActionBar]
+     * @param onCreate [AppCompatActivity] 生成・再生成時は true, その他の場合は false
+     */
     protected open fun setupActionBarOnFirstFragment(actionBar: ActionBar, onCreate: Boolean) {
         actionBar.setDisplayHomeAsUpEnabled(false)
     }
 
+    /**
+     * [AppCompatActivity] に初期表示でない [Fragment] を表示開始時にコールされ、
+     * [ActionBar] の設定を行うメソッド
+     *
+     * @param actionBar [ActionBar]
+     */
     protected open fun setupActionBarOnDescendantFragment(actionBar: ActionBar) {
         actionBar.setDisplayHomeAsUpEnabled(true)
     }
 
-    @Suppress("MemberVisibilityCanBePrivate")
-    protected fun updateActionBar(onCreate: Boolean) {
-        val actionBar = this.supportActionBar
+    /**
+     * [ActionBar] の表示を更新します。
+     *
+     * @param onCreate [AppCompatActivity] 生成・再生成時は true, その他の場合は false
+     */
+    protected open fun updateActionBar(onCreate: Boolean) {
+        val actionBar = supportActionBar
         if (actionBar != null) {
             actionBar.setDisplayShowHomeEnabled(false)
             actionBar.setDisplayShowTitleEnabled(true)
-            if (this.supportFragmentManager.backStackEntryCount > 0) {
+            if (supportFragmentManager.backStackEntryCount > 0) {
                 setupActionBarOnDescendantFragment(actionBar)
             } else {
                 setupActionBarOnFirstFragment(actionBar, onCreate)
@@ -143,21 +151,28 @@ abstract class BaseActivity : AppCompatActivity() {
         // 現在表示中のFragmentがOnNavigationUpListenerを実装している場合は、処理させる
         if (!callCurrentFragmentNavigationUp()) {
             // 実装していないか、リスナが処理を行わなかった場合は、前のFragmentへ遷移する
-            this.supportFragmentManager.popBackStack()
+            supportFragmentManager.popBackStack()
         }
         return true
     }
 
+    /**
+     * アクションバーの戻るボタン押下時の既定の処理
+     *
+     * 現在表示中の [Fragment] が [OnNavigationUpListener] を実装している場合は実行します。
+     *
+     * @return true if current [Fragment] implements [OnNavigationUpListener] and
+     * [OnNavigationUpListener.onFragmentNavigationUp] returned true, otherwise false.
+     */
     private fun callCurrentFragmentNavigationUp(): Boolean {
         // 現在表示中のFragmentがOnNavigationUpListenerを実装している場合は、処理させる
-        val currentFragment = this.supportFragmentManager
-            .findFragmentById(fragmentContainerId)
+        val currentFragment = supportFragmentManager.findFragmentById(fragmentContainerId)
         return (currentFragment is OnNavigationUpListener
                 && (currentFragment as OnNavigationUpListener).onFragmentNavigationUp())
     }
 
     override fun onBackPressed() {
-        d(TAG, "onBackPressed: start")
+        Log.d(TAG, "onBackPressed: start")
 
         // 現在表示中のFragmentがOnBackKeyListenerを実装している場合は、処理させる
         if (!callCurrentFragmentBackKeyPressed()) {
@@ -167,20 +182,24 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     /**
-     * 現在表示中の [Fragment] が [OnBackKeyListener] を実装している場合は実行する
+     * 端末戻るキー押下時の既定の処理
+     *
+     * 現在表示中の [Fragment] が [OnBackKeyListener] を実装している場合は実行します。
      *
      * @return true if current [Fragment] implements [OnBackKeyListener] and
      * [OnBackKeyListener.onBackKeyPressed] returned true, otherwise false.
      */
     private fun callCurrentFragmentBackKeyPressed(): Boolean {
         // 現在表示中のFragmentがOnBackKeyListenerを実装している場合は、処理させる
-        val currentFragment = this.supportFragmentManager
-            .findFragmentById(fragmentContainerId)
+        val currentFragment = supportFragmentManager.findFragmentById(fragmentContainerId)
         return (currentFragment is OnBackKeyListener
                 && (currentFragment as OnBackKeyListener).onBackKeyPressed())
     }
 
     companion object {
+        /**
+         * Tag for log
+         */
         private const val TAG = "VoiceClockMainScreen"
     }
 }
