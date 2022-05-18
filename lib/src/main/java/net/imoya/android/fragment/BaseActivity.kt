@@ -172,7 +172,7 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        Log.d(TAG, "onBackPressed: start")
+        Log.v(TAG, "onBackPressed: start")
 
         // 現在表示中のFragmentがOnBackKeyListenerを実装している場合は、処理させる
         if (!callCurrentFragmentBackKeyPressed()) {
@@ -200,6 +200,6 @@ abstract class BaseActivity : AppCompatActivity() {
         /**
          * Tag for log
          */
-        private const val TAG = "VoiceClockMainScreen"
+        private const val TAG = "BaseActivity"
     }
 }
