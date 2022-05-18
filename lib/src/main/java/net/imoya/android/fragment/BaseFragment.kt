@@ -58,6 +58,7 @@ abstract class BaseFragment : Fragment() {
     }
 
     @Suppress("deprecation")
+    @Deprecated("Deprecated in Java")
     override fun onAttach(activity: Activity) {
         super.onAttach(activity)
         appContext = activity.applicationContext
@@ -70,10 +71,10 @@ abstract class BaseFragment : Fragment() {
      */
     protected fun setActionBarVisibility(visible: Boolean) {
         val activity: Activity? = this.activity
-        Log.d(TAG, "setActionBarVisibility: activity = $activity")
+        Log.d(TAG) { "setActionBarVisibility: activity = $activity" }
         if (activity is AppCompatActivity) {
             val actionBar = activity.supportActionBar
-            Log.d(TAG, "setActionBarVisibility: actionBar = $actionBar")
+            Log.d(TAG) { "setActionBarVisibility: actionBar = $actionBar" }
             if (actionBar != null) {
                 if (visible) {
                     actionBar.show()
