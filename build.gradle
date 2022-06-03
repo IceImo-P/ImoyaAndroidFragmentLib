@@ -15,22 +15,6 @@ buildscript {
 }
 
 allprojects {
-    def githubProperties = new Properties()
-    githubProperties.load(new FileInputStream(rootProject.file("github.properties")))
-
-    repositories {
-        google()
-        mavenCentral()
-
-        maven {
-            name = "GitHubPackages-ImoyaAndroidUtil"
-            url = uri("https://maven.pkg.github.com/IceImo-P/ImoyaAndroidUtil")
-            credentials {
-                username = githubProperties.getProperty("imoya.gpr.user") ?: System.getenv("IMOYA_GPR_USER")
-                password = githubProperties.getProperty("imoya.gpr.token") ?: System.getenv("IMOYA_GPR_TOKEN")
-            }
-        }
-    }
     gradle.projectsEvaluated {
         tasks.withType(JavaCompile) {
             options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation"

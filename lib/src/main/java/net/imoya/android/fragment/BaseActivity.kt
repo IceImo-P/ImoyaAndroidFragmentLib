@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2022 IceImo-P
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package net.imoya.android.fragment
 
 import android.app.Activity
@@ -8,7 +24,6 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
-import net.imoya.android.util.Log
 
 /**
  * [Fragment] のナビゲーション処理をある程度実装した状態の [AppCompatActivity] です。
@@ -22,6 +37,9 @@ import net.imoya.android.util.Log
  */
 @Suppress("unused")
 abstract class BaseActivity : AppCompatActivity() {
+    /**
+     * [onCreate] の実行後、最初に [onResume] が処理を開始するタイミングまでは true, その他の場合は false
+     */
     private var isFirstResume = false
 
     /**
@@ -172,11 +190,12 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        Log.v(TAG, "onBackPressed: start")
+        FragmentLog.v(TAG, "onBackPressed: start")
 
         // 現在表示中のFragmentがOnBackKeyListenerを実装している場合は、処理させる
         if (!callCurrentFragmentBackKeyPressed()) {
             // 実装していないか、リスナが処理を行わなかった場合は、デフォルトの処理を実行する
+            FragmentLog.v(TAG, "onBackPressed: default onBackPressed process")
             super.onBackPressed()
         }
     }

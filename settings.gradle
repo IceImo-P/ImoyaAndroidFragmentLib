@@ -1,11 +1,22 @@
-//dependencyResolutionManagement {
-//    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-//
-//    repositories {
-//        google()
-//        mavenCentral()
-//    }
-//}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+
+    repositories {
+        google()
+        mavenCentral()
+
+        def githubProperties = new Properties()
+        githubProperties.load(new FileInputStream(file("github.properties")))
+        maven {
+            name = "GitHubPackages-ImoyaAndroidUtil"
+            url = uri("https://maven.pkg.github.com/IceImo-P/ImoyaAndroidUtil")
+            credentials {
+                username = githubProperties.getProperty("gpr.user") ?: System.getenv("GPR_USER")
+                password = githubProperties.getProperty("gpr.token") ?: System.getenv("GPR_TOKEN")
+            }
+        }
+    }
+}
 rootProject.name = "ImoyaAndroidFragmentLib"
 include ':app'
 include ':lib'
