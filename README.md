@@ -72,8 +72,8 @@
     ```groovy
     dependencies {
         // (other dependencies)
-        implementation 'net.imoya.android.media:imoya-android-fragment:1.2.0'
-        implementation 'net.imoya.android.log:imoya-android-log:1.1.0'
+        implementation 'net.imoya.android.media:imoya-android-fragment:1.2.1'
+        implementation 'net.imoya.android.log:imoya-android-log:1.1.1'
         // (other dependencies)
     }
     ```
