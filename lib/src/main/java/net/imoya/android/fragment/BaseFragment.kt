@@ -106,11 +106,8 @@ abstract class BaseFragment : Fragment() {
      * @param title タイトル文字列
      */
     @Suppress("MemberVisibilityCanBePrivate")
-    protected fun setTitle(title: String?) {
-        val activity: Activity? = this.activity
-        if (activity != null) {
-            activity.title = title
-        }
+    protected fun setTitle(title: CharSequence?) {
+        this.activity?.title = title ?: ""
     }
 
     /**
@@ -129,7 +126,7 @@ abstract class BaseFragment : Fragment() {
     var containerViewId: Int
         get() = requireArguments().getInt(ARGUMENT_CONTAINER_VIEW_ID, 0)
         set(containerViewId) {
-            val argumentsBefore = arguments
+            val argumentsBefore = this.arguments
             val arguments = argumentsBefore ?: Bundle()
             arguments.putInt(ARGUMENT_CONTAINER_VIEW_ID, containerViewId)
             if (argumentsBefore == null) {
