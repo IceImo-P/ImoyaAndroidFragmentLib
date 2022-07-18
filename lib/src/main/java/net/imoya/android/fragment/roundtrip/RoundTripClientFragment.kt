@@ -13,6 +13,22 @@ import net.imoya.android.fragment.R
  */
 abstract class RoundTripClientFragment : Fragment() {
     /**
+     * "Host" が指定した、 "client" を表示する領域となる [android.view.View] の ID
+     */
+    @Suppress("unused")
+    val roundTripContainerId: Int
+        get() {
+            val args: Bundle = requireArguments().getBundle(Constants.KEY_BUNDLE)
+                ?: throw IllegalStateException("RoundTrip arguments are not set")
+            if (args.containsKey(Constants.KEY_CONTAINER_ID)) {
+                return args.getInt(Constants.KEY_CONTAINER_ID)
+            } else {
+                throw IllegalStateException("RoundTrip containerId argument is not set")
+            }
+        }
+
+
+    /**
      * Round-trip (往復)ナビゲーションを終了し、 "host" の画面へ結果を通知します。
      *
      * @param result "host" の画面へ通知する結果情報

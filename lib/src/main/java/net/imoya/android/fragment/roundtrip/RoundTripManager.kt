@@ -120,6 +120,7 @@ abstract class RoundTripManager {
      *
      * - If [containerId] is the default value (0), WARN log is output.
      */
+    @Suppress("MemberVisibilityCanBePrivate")
     protected fun checkAndWarnContainerId() {
         if (containerId == 0) {
             FragmentLog.w(TAG, "containerId is default value(0). Is it intended?")
