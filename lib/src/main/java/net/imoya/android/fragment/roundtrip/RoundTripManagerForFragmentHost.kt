@@ -14,7 +14,6 @@ open class RoundTripManagerForFragmentHost(
     /**
      * "host" となる [Fragment]
      */
-    @Suppress("MemberVisibilityCanBePrivate")
     protected val fragment: Fragment
 ) : RoundTripManager() {
     override val fragmentManager: FragmentManager

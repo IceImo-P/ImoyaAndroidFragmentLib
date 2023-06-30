@@ -19,6 +19,7 @@ package net.imoya.android.fragment
 import android.app.Activity
 import android.os.Bundle
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.LayoutRes
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
@@ -101,6 +102,7 @@ abstract class BaseActivity : AppCompatActivity() {
         supportFragmentManager.addOnBackStackChangedListener(
             backStackChangedListener
         )
+        onBackPressedDispatcher.addCallback(this, backKeyHandler)
 
         // 初期状態の場合、最初に表示する Fragment を配置する
         if (savedInstanceState == null) {
@@ -119,6 +121,7 @@ abstract class BaseActivity : AppCompatActivity() {
         super.onResume()
         if (isFirstResume) {
             isFirstResume = false
+            setupBackKeyHandler()
             updateActionBar(true)
         }
     }
@@ -163,7 +166,10 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     private val backStackChangedListener =
-        FragmentManager.OnBackStackChangedListener { updateActionBar(false) }
+        FragmentManager.OnBackStackChangedListener {
+            setupBackKeyHandler()
+            updateActionBar(false)
+        }
 
     override fun onSupportNavigateUp(): Boolean {
         // 現在表示中のFragmentがOnNavigationUpListenerを実装している場合は、処理させる
@@ -189,20 +195,26 @@ abstract class BaseActivity : AppCompatActivity() {
                 && (currentFragment as OnNavigationUpListener).onFragmentNavigationUp())
     }
 
-    override fun onBackPressed() {
-        FragmentLog.v(TAG, "onBackPressed: start")
-
-        // 現在表示中のFragmentがOnBackKeyListenerを実装している場合は、処理させる
-        if (!callCurrentFragmentBackKeyPressed()) {
-            // 実装していないか、リスナが処理を行わなかった場合は、デフォルトの処理を実行する
-            FragmentLog.v(TAG, "onBackPressed: default onBackPressed process")
-            super.onBackPressed()
+    private val backKeyHandler = object : OnBackPressedCallback(true) {
+        override fun handleOnBackPressed() {
+            processOnBackPressed()
         }
     }
 
+    private fun setupBackKeyHandler() {
+        val currentFragment = supportFragmentManager.findFragmentById(fragmentContainerId)
+        this.backKeyHandler.isEnabled =
+            (currentFragment != null && currentFragment is OnNavigationUpListener)
+    }
+
+    private fun processOnBackPressed() {
+        FragmentLog.v(TAG, "onBackPressed: start")
+
+        // 現在表示中のFragmentがOnBackKeyListenerを実装している場合は、処理させる
+        callCurrentFragmentBackKeyPressed()
+    }
+
     /**
-     * 端末戻るキー押下時の既定の処理
-     *
      * 現在表示中の [Fragment] が [OnBackKeyListener] を実装している場合は実行します。
      *
      * @return true if current [Fragment] implements [OnBackKeyListener] and

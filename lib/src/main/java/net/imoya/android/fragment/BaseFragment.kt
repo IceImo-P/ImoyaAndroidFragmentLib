@@ -53,8 +53,7 @@ abstract class BaseFragment : Fragment() {
      * @param fragment 置き換え後の [Fragment]
      * @param tag      [Fragment] に設定するタグ
      */
-    @Suppress("MemberVisibilityCanBePrivate")
-    protected fun replaceThisTo(fragment: BaseFragment, tag: String?) {
+    protected open fun replaceThisTo(fragment: BaseFragment, tag: String?) {
         val containerViewId = this.containerViewId
         fragment.containerViewId = containerViewId
         parentFragmentManager.beginTransaction()
@@ -84,7 +83,7 @@ abstract class BaseFragment : Fragment() {
      *
      * @param visible 表示する場合true, 非表示とする場合false
      */
-    protected fun setActionBarVisibility(visible: Boolean) {
+    protected open fun setActionBarVisibility(visible: Boolean) {
         val activity: Activity? = this.activity
         FragmentLog.v(TAG) { "setActionBarVisibility: activity = $activity" }
         if (activity is AppCompatActivity) {
@@ -122,7 +121,6 @@ abstract class BaseFragment : Fragment() {
     /**
      * [Activity] に於いて、この [Fragment] が配置される親 [View] の ID
      */
-    @Suppress("MemberVisibilityCanBePrivate")
     var containerViewId: Int
         get() = requireArguments().getInt(ARGUMENT_CONTAINER_VIEW_ID, 0)
         set(containerViewId) {
